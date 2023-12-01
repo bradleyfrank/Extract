@@ -21,6 +21,17 @@
 SAVEIFS=$IFS
 IFS="$(printf '\n\t')"
 
+function extract_cpio {
+  local cpio="$1" dest
+  dest="${cpio%%.*}"
+  mkdir "$dest"
+  mv "$cpio" "$dest"/
+  pushd "$dest" &>/dev/null
+  cpio -id < ./"$cpio"
+  popd &>/dev/null
+  mv "$dest/$cpio" .
+}
+
 function extract {
  if [ $# -eq 0 ]; then
     # display usage if no parameters given
@@ -46,7 +57,7 @@ function extract {
                        7z x ./"$n"        ;;
           *.xz)        unxz ./"$n"        ;;
           *.exe)       cabextract ./"$n"  ;;
-          *.cpio)      cpio -id < ./"$n"  ;;
+          *.cpio)      extract_cpio "$n"  ;;
           *.cba|*.ace) unace x ./"$n"     ;;
           *.zpaq)      zpaq x ./"$n"      ;;
           *.arc)       arc e ./"$n"       ;;
@@ -57,7 +68,7 @@ function extract {
           *.dmg)
                       hdiutil mount ./"$n" -mountpoint "./$n.mounted" ;;
           *.tar.zst)  tar -I zstd -xvf ./"$n"  ;;
-          *.zst)      zstd -d ./"$n"  ;;
+          *.zst|*.zstd) zstd -d ./"$n"  ;;
           *)
                       echo "extract: '$n' - unknown archive method"
                       return 1
