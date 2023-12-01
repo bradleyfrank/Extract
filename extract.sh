@@ -68,7 +68,7 @@ function extract {
           *.dmg)
                       hdiutil mount ./"$n" -mountpoint "./$n.mounted" ;;
           *.tar.zst)  tar -I zstd -xvf ./"$n"  ;;
-          *.zst|*.zstd) zstd -d ./"$n"  ;;
+          *.zst)      zstd -d ./"$n"  ;;
           *)
                       echo "extract: '$n' - unknown archive method"
                       return 1
